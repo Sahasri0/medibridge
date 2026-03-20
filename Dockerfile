@@ -1,20 +1,30 @@
-# Use Node.js 18-slim as the base image
-FROM node:18-slim
+# Multi-stage Dockerfile for efficiency and security
 
-# Set the working directory
+# Stage 1: Build
+FROM node:18-slim AS builder
 WORKDIR /app
-
-# Copy package.json and package-lock.json first
 COPY package*.json ./
-
-# Install dependencies
-RUN npm install --production
-
-# Copy the rest of the application code
+RUN npm install
 COPY . .
 
-# Expose the port (Cloud Run defaults to 8080)
+# Stage 2: Production
+FROM node:18-slim
+WORKDIR /app
+
+# Improve non-root security
+RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
+
+# Copy only what's needed for production
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/server.js ./
+COPY --from=builder /app/index.html ./
+
+# Set permissions
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+
+ENV NODE_ENV=production
 EXPOSE 8080
 
-# Start the application
 CMD ["npm", "start"]
