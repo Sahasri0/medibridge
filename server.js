@@ -8,18 +8,15 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8081;
 
-// Security: Use Helmet for secure headers
+// Temporary: Comment out helmet for local dev if HSTS lock-in persists
+/*
 app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-            "script-src": ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
-            "img-src": ["'self'", "data:", "https://*"],
-        },
-    },
+    contentSecurityPolicy: { ... },
+    hsts: false,
 }));
+*/
 
 // Efficiency: Compression for reduced asset size
 app.use(compression());
@@ -34,6 +31,14 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again after 15 minutes'
 });
 app.use('/analyze', limiter);
+
+// Diagnostic Global Middleware
+app.use((req, res, next) => {
+    if (req.method === 'POST') {
+        console.log(`[DIAGNOSTIC] Incoming ${req.method} request to ${req.url}`);
+    }
+    next();
+});
 
 // Efficiency: Body parser limits
 app.use(express.json({ limit: '10mb' }));
@@ -58,6 +63,7 @@ app.get('/health', (req, res) => {
 });
 
 app.post('/analyze', async (req, res) => {
+    console.log('--- Incoming /analyze request ---');
     try {
         const { image, notes } = req.body;
 
@@ -77,21 +83,25 @@ app.post('/analyze', async (req, res) => {
         const imageData = image.split(',')[1];
         const mimeType = image.split(',')[0].split(':')[1].split(';')[0];
 
-        // Advanced Prompting Architecture
-        const systemPrompt = `Act as a professional medical document interpreter.
-        Extract the following information from the provided medical document image:
-        - Medications: name, dosage, frequency
-        - Symptoms/Diagnosis: key medical findings
-        - Next Steps: doctor recommendations, follow-up tests
-        - Urgency: high, medium, low
+        // Refined Prompting for India Context (v2.0)
+        const systemPrompt = `Act as an expert Indian medical document interpreter.
+        Analyze the provided image (prescription, report, or note) which may be in English, Hindi, Telugu, or Tamil.
         
-        IMPORTANT: Always include a medical disclaimer.
-        Return the result as a JSON object with keys: medications, insights, symptoms, nextSteps, urgency, and disclaimer.`;
+        Extract and provide the following in structured JSON:
+        - medications: array of {name, dosage, frequency}
+        - generic_alternatives: array of Jan Aushadhi (generic) alternatives for the medicines mentioned (to save costs)
+        - symptoms: key medical findings identified
+        - nextSteps: follow-up actions/tests
+        - scheme_eligibility: specify if the condition/procedure might be covered under 'Ayushman Bharat (PM-JAY)' or 'CGHS'
+        - urgency: high, medium, or low
+        - disclaimer: medical disclaimer in English and the patient's detected language
+        
+        Return ONLY valid JSON.`;
 
-        const userNotes = notes ? `\nPatient's context/notes: ${notes}` : "";
-        const finalPrompt = `${systemPrompt}${userNotes}\nAnalyze the provided medical document image.`;
+        const userNotes = notes ? `\nPatient's context: ${notes}` : "";
+        const finalPrompt = `${userNotes}\nInterpret this medical document for an Indian patient context.`;
 
-        console.log(`Analyzing document with model: gemini-2.5-flash (Structured Output)`);
+        console.log(`Analyzing document (v2.0) with model: gemini-2.5-flash`);
         
         const result = await model.generateContent([
             {
