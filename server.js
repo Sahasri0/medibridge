@@ -28,7 +28,7 @@ const logToCloud = (severity, message, extra = {}) => {
 app.use((req, res, next) => {
     const start = Date.now();
     res.on('finish', () => {
-        logToCloud(res.statusCode >= 400 ? 'ERROR' : 'INFO', 
+        logToCloud(res.statusCode >= 400 ? 'ERROR' : 'INFO',
             `${req.method} ${req.originalUrl} HTTP/${req.httpVersion}`, {
             httpRequest: {
                 requestMethod: req.method,
@@ -47,10 +47,12 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-            "script-src": ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://maps.googleapis.com", "https://accounts.google.com"],
+            "script-src": ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://maps.googleapis.com", "https://accounts.google.com", "https://www.googletagmanager.com"],
             "img-src": ["'self'", "data:", "https://*"],
-            "connect-src": ["'self'", "https://maps.googleapis.com", "https://generativelanguage.googleapis.com"],
+            "connect-src": ["'self'", "https://maps.googleapis.com", "https://generativelanguage.googleapis.com", "https://www.google-analytics.com"],
             "frame-src": ["https://accounts.google.com"],
+            "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com"],
+            "font-src": ["'self'", "https://fonts.gstatic.com"],
         },
     },
     hsts: false,
@@ -91,7 +93,7 @@ app.post('/analyze', async (req, res) => {
         const { image, notes } = req.body;
         if (!image) return res.status(400).json({ error: 'Image missing' });
 
-        const model = genAI.getGenerativeModel({ 
+        const model = genAI.getGenerativeModel({
             model: "gemini-2.5-flash",
             generationConfig: { responseMimeType: "application/json" }
         });

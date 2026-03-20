@@ -1,50 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediBridge | Elite AI Assistant (India)</title>
     <!-- SECURITY: CSP with Google Services support -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://maps.googleapis.com https://accounts.google.com; connect-src 'self' https://maps.googleapis.com https://generativelanguage.googleapis.com; img-src 'self' data: https://*; frame-src https://accounts.google.com;">
-    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://maps.googleapis.com https://accounts.google.com https://www.googletagmanager.com; connect-src 'self' https://maps.googleapis.com https://generativelanguage.googleapis.com https://www.google-analytics.com; img-src 'self' data: https://* https://accounts.google.com; frame-src https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' https://fonts.gstatic.com;">
+
     <!-- ELITE GOOGLE IDENTITY: Google One Tap/Signin -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@700;800&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --bg: #020617;
-            --text: #f1f5f9; /* AAA Contrast over bg */
+            --text: #f1f5f9;
+            /* AAA Contrast over bg */
             --sky: #38bdf8;
             --emerald: #10b981;
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); }
-        h1, h2 { font-family: 'Poppins', sans-serif; }
-        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        h1,
+        h2 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         /* Efficiency: Focus visibility */
-        .focusable:focus-visible { outline: 2px solid var(--sky); outline-offset: 4px; }
-        
+        .focusable:focus-visible {
+            outline: 2px solid var(--sky);
+            outline-offset: 4px;
+        }
+
         /* Animation: Fade-in */
-        .reveal { transition: all 0.6s ease-out; opacity: 0; transform: translateY(15px); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-        
-        .mic-active { color: #f43f5e; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { scale: 1; } 50% { scale: 1.1; } 100% { scale: 1; } }
+        .reveal {
+            transition: all 0.6s ease-out;
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mic-active {
+            color: #f43f5e;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                scale: 1;
+            }
+
+            50% {
+                scale: 1.1;
+            }
+
+            100% {
+                scale: 1;
+            }
+        }
 
         /* Progress Bar for Compression */
-        #compressionProgress { height: 4px; background: var(--sky); width: 0%; transition: width 0.3s; }
+        #compressionProgress {
+            height: 4px;
+            background: var(--sky);
+            width: 0%;
+            transition: width 0.3s;
+        }
     </style>
 </head>
+
 <body class="p-6 md:p-12">
     <!-- ACCESSIBILITY: Skip to Content -->
-    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 font-bold bg-sky-500 p-3 z-50">Skip to content</a>
+    <a href="#main"
+        class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 font-bold bg-sky-500 p-3 z-50">Skip to
+        content</a>
 
     <header class="max-w-7xl mx-auto mb-16 flex items-center justify-between gap-4" role="banner">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="white" class="w-7 h-7">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg"
+                aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                    stroke="white" class="w-7 h-7">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
             </div>
@@ -53,14 +108,13 @@
                 <p class="text-slate-500 text-xs font-bold tracking-widest uppercase">v3.5 Elite • India Context</p>
             </div>
         </div>
-        
+
         <!-- ELITE GOOGLE SERVICES: Google Identity Component -->
-        <div id="g_id_onload"
-             data-client_id="YOUR_CLIENT_ID.apps.googleusercontent.com"
-             data-auto_prompt="false"
-             data-callback="handleCredentialResponse">
+        <div id="g_id_onload" data-client_id="YOUR_CLIENT_ID.apps.googleusercontent.com" data-auto_prompt="false"
+            data-callback="handleCredentialResponse">
         </div>
-        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
+        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="signin_with"
+            data-size="large" data-logo_alignment="left"></div>
     </header>
 
     <main id="main" class="max-w-7xl mx-auto grid lg:grid-cols-12 gap-12">
@@ -77,46 +131,63 @@
 
                 <div class="flex flex-col gap-6">
                     <div class="relative group">
-                        <input type="file" id="imageInput" accept="image/*" class="hidden" aria-label="Upload medical file">
-                        <label for="imageInput" class="border-2 border-dashed border-slate-700 rounded-2xl p-10 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-sky-500 hover:bg-sky-500/5 transition-all text-center">
-                            <div id="previewContainer" class="hidden w-full h-40 overflow-hidden rounded-xl bg-slate-900 mb-2">
+                        <input type="file" id="imageInput" accept="image/*" class="hidden"
+                            aria-label="Upload medical file">
+                        <label for="imageInput"
+                            class="border-2 border-dashed border-slate-700 rounded-2xl p-10 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-sky-500 hover:bg-sky-500/5 transition-all text-center">
+                            <div id="previewContainer"
+                                class="hidden w-full h-40 overflow-hidden rounded-xl bg-slate-900 mb-2">
                                 <img id="imagePreview" class="w-full h-full object-cover" alt="Image preview">
                             </div>
                             <div id="uploadPrompt" class="flex flex-col items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-sky-400">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-sky-400">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                                 </svg>
                                 <p class="text-sm font-bold text-slate-200">Select Medical Report</p>
                             </div>
                             <!-- EFFICIENCY: Image Compression Status -->
-                            <div id="compressionContainer" class="hidden w-full bg-slate-900 rounded-full overflow-hidden mt-4">
-                                <p class="text-[9px] font-black uppercase tracking-widest text-sky-400 mb-1">Optimizing Payload...</p>
+                            <div id="compressionContainer"
+                                class="hidden w-full bg-slate-900 rounded-full overflow-hidden mt-4">
+                                <p class="text-[9px] font-black uppercase tracking-widest text-sky-400 mb-1">Optimizing
+                                    Payload...</p>
                                 <div id="compressionProgress"></div>
                             </div>
                         </label>
                     </div>
 
                     <div class="flex flex-col gap-3 relative">
-                        <label for="notes" class="text-[10px] font-black uppercase text-slate-500">Signs & Symptoms / Context</label>
+                        <label for="notes" class="text-[10px] font-black uppercase text-slate-500">Signs & Symptoms /
+                            Context</label>
                         <div class="flex gap-2">
-                            <textarea id="notes" rows="4" placeholder="Mention if you prefer Hindi, Tamil or Telugu results..." class="flex-1 rounded-2xl bg-slate-950/40 border border-slate-800 p-5 text-sm focus:ring-4 focus:ring-sky-500/10 placeholder:text-slate-700 resize-none font-medium"></textarea>
-                            
+                            <textarea id="notes" rows="4"
+                                placeholder="Mention if you prefer Hindi, Tamil or Telugu results..."
+                                class="flex-1 rounded-2xl bg-slate-950/40 border border-slate-800 p-5 text-sm focus:ring-4 focus:ring-sky-500/10 placeholder:text-slate-700 resize-none font-medium"></textarea>
+
                             <!-- ELITE GOOGLE SERVICES: Voice-to-Text (Speech Recognition) -->
-                            <button id="micBtn" type="button" class="w-14 h-14 bg-slate-900 flex items-center justify-center rounded-2xl border border-slate-800 hover:bg-sky-500/10 transition-all focusable" aria-label="Start Voice-to-Text Symptoms Input">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                            <button id="micBtn" type="button"
+                                class="w-14 h-14 bg-slate-900 flex items-center justify-center rounded-2xl border border-slate-800 hover:bg-sky-500/10 transition-all focusable"
+                                aria-label="Start Voice-to-Text Symptoms Input">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                    stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
                                 </svg>
                             </button>
                         </div>
                     </div>
 
-                    <button id="analyzeBtn" class="w-full h-14 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-2xl flex items-center justify-center gap-4 shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 focusable">
+                    <button id="analyzeBtn"
+                        class="w-full h-14 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-2xl flex items-center justify-center gap-4 shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 focusable">
                         <span id="btnText">ANALYZE DIAGNOSTICS</span>
-                        <div id="btnLoader" class="loader hidden w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                        <div id="btnLoader"
+                            class="loader hidden w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin">
+                        </div>
                     </button>
                 </div>
             </div>
-            
+
             <footer class="p-6 bg-indigo-500/5 rounded-3xl border border-indigo-500/10">
                 <h3 class="text-xs font-black text-indigo-400 uppercase mb-2">Bharat Medical Context</h3>
                 <p class="text-[10px] leading-relaxed text-slate-400 font-medium italic">
@@ -127,10 +198,12 @@
 
         <!-- OUTPUT SECTION -->
         <article class="lg:col-span-8 flex flex-col gap-10" aria-label="Analysis Results">
-            <div id="resultCard" class="glass rounded-[3rem] p-10 min-h-[500px] opacity-40 grayscale pointer-events-none transition-all duration-700">
+            <div id="resultCard"
+                class="glass rounded-[3rem] p-10 min-h-[500px] opacity-40 grayscale pointer-events-none transition-all duration-700">
                 <header class="flex items-center justify-between border-b border-white/5 pb-8 mb-10">
                     <h2 class="text-2xl font-extrabold italic">Analysis Interpretation</h2>
-                    <div id="urgencyBadge" class="hidden px-5 py-2 rounded-full text-[10px] font-black border uppercase tracking-widest">
+                    <div id="urgencyBadge"
+                        class="hidden px-5 py-2 rounded-full text-[10px] font-black border uppercase tracking-widest">
                         <span id="urgencyText">-</span>
                     </div>
                 </header>
@@ -142,13 +215,16 @@
                             <div id="medList" class="flex flex-col gap-3"></div>
                         </section>
                         <section aria-label="Generics">
-                            <h3 class="text-xs font-black text-emerald-400 uppercase tracking-widest mb-4">Jan Aushadhi (Generic Hub)</h3>
+                            <h3 class="text-xs font-black text-emerald-400 uppercase tracking-widest mb-4">Jan Aushadhi
+                                (Generic Hub)</h3>
                             <div id="genericList" class="flex flex-col gap-3"></div>
                         </section>
                     </div>
 
-                    <section aria-label="Scheme" class="bg-indigo-500/5 p-6 rounded-2xl border border-indigo-501/10 flex items-center gap-4">
-                        <div class="px-3 py-1 bg-indigo-400/20 rounded-full text-[9px] font-black text-indigo-300">ELIGIBILITY</div>
+                    <section aria-label="Scheme"
+                        class="bg-indigo-500/5 p-6 rounded-2xl border border-indigo-501/10 flex items-center gap-4">
+                        <div class="px-3 py-1 bg-indigo-400/20 rounded-full text-[9px] font-black text-indigo-300">
+                            ELIGIBILITY</div>
                         <p id="schemeText" class="text-sm font-bold text-indigo-100 flex-1"></p>
                     </section>
 
@@ -163,7 +239,8 @@
                         </section>
                     </div>
 
-                    <footer class="pt-8 border-t border-white/5 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                    <footer
+                        class="pt-8 border-t border-white/5 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                         <p id="disclaimerText"></p>
                     </footer>
                 </div>
@@ -173,7 +250,8 @@
             <section id="nearby-section" class="reveal flex flex-col gap-8 mb-20" aria-label="Nearby Assistance">
                 <header class="flex items-center justify-between">
                     <h2 class="text-2xl font-extrabold">Prompt Assistive Care Nearby</h2>
-                    <div id="nearbyLoader" class="hidden text-xs font-black text-sky-400 animate-pulse">SEARCHING GOOGLE MAPS...</div>
+                    <div id="nearbyLoader" class="hidden text-xs font-black text-sky-400 animate-pulse">SEARCHING GOOGLE
+                        MAPS...</div>
                 </header>
                 <div id="nearbyContainer" class="grid md:grid-cols-3 gap-6"></div>
             </section>
@@ -185,7 +263,7 @@
         function loadGoogleMaps() {
             if (window.googleLoaded) return Promise.resolve();
             return new Promise((resolve) => {
-                (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.googleapis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+                (g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.googleapis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })({
                     key: "YOUR_MAPS_API_KEY",
                     v: "weekly"
                 });
@@ -272,7 +350,7 @@
         let isProcessing = false;
         analyzeBtn.addEventListener('click', async () => {
             if (!base64Image || isProcessing) return;
-            
+
             isProcessing = true;
             analyzeBtn.disabled = true;
             btnText.textContent = 'ANALYZING...';
@@ -328,15 +406,15 @@
             container.innerHTML = '';
 
             await loadGoogleMaps();
-            
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async pos => {
                     const center = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                    
+
                     // Caching Logic: If moved < 500m avoid API call
                     const lastPos = JSON.parse(localStorage.getItem('last_care_pos'));
                     const lastRes = JSON.parse(localStorage.getItem('last_care_res_' + type));
-                    
+
                     if (lastPos && lastRes) {
                         const dLat = Math.abs(center.lat - lastPos.lat);
                         const dLng = Math.abs(center.lng - lastPos.lng);
@@ -357,10 +435,10 @@
                             maxResultCount: 3,
                         };
                         const { places } = await Place.searchNearby(request);
-                        
+
                         localStorage.setItem('last_care_pos', JSON.stringify(center));
                         localStorage.setItem('last_care_res_' + type, JSON.stringify(places));
-                        
+
                         renderCare(places);
                     } catch (e) { console.error(e); } finally { loader.classList.add('hidden'); }
                 }, () => loader.classList.add('hidden'));
@@ -379,4 +457,5 @@
         }
     </script>
 </body>
+
 </html>
