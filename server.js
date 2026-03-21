@@ -49,7 +49,7 @@ app.use(helmet({
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
             "script-src": ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://maps.googleapis.com", "https://accounts.google.com", "https://www.googletagmanager.com"],
             "img-src": ["'self'", "data:", "https://*"],
-            "connect-src": ["'self'", "https://maps.googleapis.com", "https://generativelanguage.googleapis.com", "https://www.google-analytics.com"],
+            "connect-src": ["'self'", "https://maps.googleapis.com", "https://places.googleapis.com", "https://generativelanguage.googleapis.com", "https://www.google-analytics.com"],
             "frame-src": ["https://accounts.google.com"],
             "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com"],
             "font-src": ["'self'", "https://fonts.gstatic.com"],
@@ -110,18 +110,28 @@ app.post('/analyze', async (req, res) => {
         urgency: high/medium/low,
         disclaimer: multilingual (EN + Detected language)`;
 
+        const finalPrompt = notes ? `Context/Notes from Patient: ${notes}\n\n${systemPrompt}` : systemPrompt;
+
         const result = await model.generateContent([
             { inlineData: { data: imageData, mimeType } },
-            notes || systemPrompt
+            finalPrompt
         ]);
 
-        const text = await result.response.text();
-        logToCloud('INFO', 'Gemini analysis successful');
+        let text = await result.response.text();
+        console.log('Gemini analysis successful');
+        
+        // Ensure to strip any markdown wrappers that block JSON.parse
+        text = text.replace(/^```(json)?|```$/gi, '').trim();
+        
         res.json(JSON.parse(text));
 
     } catch (error) {
-        logToCloud('ERROR', 'Gemini Analysis Failed', { stack: error.stack });
-        res.status(500).json({ error: 'Deep analysis failed. Verify image quality.' });
+        console.error('Gemini Analysis Failed: ' + error.message, { stack: error.stack });
+        
+        if (error.message && error.message.includes('API_KEY')) {
+            return res.status(401).json({ error: 'Access Denied: Invalid API Key' });
+        }
+        res.status(500).json({ error: `Analysis failed: ${error.message || 'Unknown server error'}` });
     }
 });
 

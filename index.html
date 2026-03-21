@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediBridge | Elite AI Assistant (India)</title>
     <!-- SECURITY: CSP with Google Services support -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://maps.googleapis.com https://accounts.google.com https://www.googletagmanager.com; connect-src 'self' https://maps.googleapis.com https://generativelanguage.googleapis.com https://www.google-analytics.com; img-src 'self' data: https://* https://accounts.google.com; frame-src https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' https://fonts.gstatic.com;">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://maps.googleapis.com https://accounts.google.com https://www.googletagmanager.com; connect-src 'self' https://maps.googleapis.com https://places.googleapis.com https://generativelanguage.googleapis.com https://www.google-analytics.com; img-src 'self' data: https://* https://accounts.google.com; frame-src https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' https://fonts.gstatic.com;">
 
     <!-- ELITE GOOGLE IDENTITY: Google One Tap/Signin -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -110,7 +111,7 @@
         </div>
 
         <!-- ELITE GOOGLE SERVICES: Google Identity Component -->
-        <div id="g_id_onload" data-client_id="YOUR_CLIENT_ID.apps.googleusercontent.com" data-auto_prompt="false"
+        <div id="g_id_onload" data-client_id="85934-placeholder.apps.googleusercontent.com" data-auto_prompt="false"
             data-callback="handleCredentialResponse">
         </div>
         <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="signin_with"
@@ -248,10 +249,20 @@
 
             <!-- NEARBY SECTION with IntersectionObserver -->
             <section id="nearby-section" class="reveal flex flex-col gap-8 mb-20" aria-label="Nearby Assistance">
-                <header class="flex items-center justify-between">
-                    <h2 class="text-2xl font-extrabold">Prompt Assistive Care Nearby</h2>
-                    <div id="nearbyLoader" class="hidden text-xs font-black text-sky-400 animate-pulse">SEARCHING GOOGLE
-                        MAPS...</div>
+                <header class="flex flex-col gap-5">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-extrabold">Prompt Assistive Care Nearby</h2>
+                        <div id="nearbyLoader" class="hidden text-xs font-black text-sky-400 animate-pulse">SEARCHING
+                            GOOGLE MAPS...</div>
+                    </div>
+                    <div class="flex gap-4">
+                        <button id="findHospitalsBtn"
+                            class="px-6 py-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 font-bold text-sm hover:bg-sky-500/20 transition-all active:scale-95 focusable">Find
+                            Hospitals</button>
+                        <button id="findPharmaciesBtn"
+                            class="px-6 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-sm hover:bg-emerald-500/20 transition-all active:scale-95 focusable">Find
+                            Pharmacies</button>
+                    </div>
                 </header>
                 <div id="nearbyContainer" class="grid md:grid-cols-3 gap-6"></div>
             </section>
@@ -264,7 +275,7 @@
             if (window.googleLoaded) return Promise.resolve();
             return new Promise((resolve) => {
                 (g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.googleapis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })({
-                    key: "YOUR_MAPS_API_KEY",
+                    key: "AIzaSyD1D2yTRxp-sqXt9EpxqAmxNad9ybYMwGY",
                     v: "weekly"
                 });
                 window.googleLoaded = true;
@@ -274,6 +285,12 @@
     </script>
 
     <script>
+        // Provide the credential callback expected by Google Identity
+        function handleCredentialResponse(response) {
+            console.log("Encoded JWT ID token: " + response.credential);
+            alert("Mock Google Auth successful.");
+        }
+
         const imageInput = document.getElementById('imageInput');
         const analyzeBtn = document.getElementById('analyzeBtn');
         const btnText = document.getElementById('btnText');
@@ -287,8 +304,14 @@
         const compressionBar = document.getElementById('compressionProgress');
         const micBtn = document.getElementById('micBtn');
         const notes = document.getElementById('notes');
+        const findHospitalsBtn = document.getElementById('findHospitalsBtn');
+        const findPharmaciesBtn = document.getElementById('findPharmaciesBtn');
 
         let base64Image = '';
+
+        // Safely map button clicks to the nearby logic to respect CSP
+        findHospitalsBtn.addEventListener('click', () => findNearby('hospitals'));
+        findPharmaciesBtn.addEventListener('click', () => findNearby('pharmacies'));
 
         // EFFICIENCY: IntersectionObserver for reveal animations
         const observer = new IntersectionObserver((entries) => {
@@ -364,6 +387,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ image: base64Image, notes: notes.value })
                 });
+
+                if (!response.ok) {
+                    const errPayload = await response.json().catch(() => ({}));
+                    throw new Error(errPayload.error || `Server Status ${response.status}`);
+                }
+
                 const data = await response.json();
                 renderResults(data);
                 if (data.urgency === 'high') {
@@ -371,7 +400,8 @@
                     findNearby('hospitals');
                 }
             } catch (err) {
-                alert('Analysis failed. Verify your connection.');
+                console.error('Fetch error:', err);
+                alert(`Analysis failed: ${err.message}. Please check connection or API limits.`);
             } finally {
                 isProcessing = false;
                 analyzeBtn.disabled = false;
